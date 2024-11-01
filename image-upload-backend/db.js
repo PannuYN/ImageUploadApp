@@ -1,6 +1,7 @@
 // db.js
 const sqlite3 = require('sqlite3').verbose();
 const mkdirp = require('mkdirp');
+const util = require('util');
 
 // Ensure the directory exists for the database file
 mkdirp.sync('./var/db');
@@ -26,5 +27,12 @@ db.serialize(() => {
   )`);
 });
 
-// Export the database instance for use in other files
-module.exports = db;
+// Promisify db.all and db.get for SELECT queries
+const queryAsync = {
+  all: util.promisify(db.all).bind(db), // For queries returning multiple rows
+  get: util.promisify(db.get).bind(db), // For queries returning a single row
+  run: util.promisify(db.run).bind(db) // For queries that do not return rows (INSERT, UPDATE, DELETE)
+};
+
+// Export the database instance and queryAsync functions for use in other files
+module.exports = { db, queryAsync };

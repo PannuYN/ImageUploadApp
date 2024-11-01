@@ -1,6 +1,6 @@
 //import necessary libraries and functions
-const { uploadAndGetUrl, upload, download } = require("./Utils");
-const db = require('../db');
+const { uploadAndGetUrl, upload, download, createContainerClient } = require("./Utils");
+const { db, queryAsync } = require('../db')
 
 //assign required constants
 const containerName = "profilepics";
@@ -61,27 +61,37 @@ exports.createNewUser = async (req, res) => {
     }
 };
 
-//upload to set profile picture
+// Upload to set profile picture
 exports.uploadProfilePicture = async (req, res) => {
     const userId = req.params.userId; // Get the user ID from the URL
-    if (!req.file) //check the existence of the file in the request
+    if (!req.file) // Check the existence of the file in the request
         return res.status(400).json({ error: 'No file uploaded.' });
-
     try {
-        const imageUrl = await uploadAndGetUrl(req, containerName); // Get the URL of the uploaded image
+        // Upload the new profile picture and get its URL
+        const imageUrl = await uploadAndGetUrl(req, containerName);
+        // Retrieve the current profile picture URL from the database
+        const currentProfilePic = await queryAsync.get('SELECT profile_pic FROM users WHERE id = ?', [userId]);
+        // Check if a current profile picture exists
+        if (currentProfilePic && currentProfilePic.profile_pic) {
+            const encodedBlobName = currentProfilePic.profile_pic.split('/').pop(); // Extract the encoded blob name
+            const blobName = decodeURIComponent(encodedBlobName); // Decode the blob name
+            const blockBlobClient = createContainerClient(containerName).getBlockBlobClient(blobName);
+            await blockBlobClient.delete(); // Attempt to delete the old profile picture
+        }
         // Update the user's profile_pic in the database
         db.run("UPDATE users SET profile_pic = ? WHERE id = ?", [imageUrl, userId], function (err) {
             if (err) {
                 console.error('Error updating profile picture:', err.message);
                 return res.status(500).json({ error: 'Error updating profile picture.' });
             }
-            res.status(200).json({ imageUrl }); // Respond with the image URL
+            res.status(200).json({ imageUrl }); // Respond with the new image URL
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error uploading the image.' });
     }
 };
+
 
 //download profile picture
 exports.downloadProfilePic = async (req, res) => {

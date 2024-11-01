@@ -1,5 +1,5 @@
 //import necessary libraries and functions
-const db = require("../db");
+const {db, queryAsync} = require("../db");
 const { createContainerClient, uploadAndGetUrl, download } = require("./Utils");
 
 //assign required constants
@@ -23,23 +23,23 @@ exports.getUploadedImages = async (req, res) => {
 
 //get an image by id
 
-//get images by uploaded user
+// Get images by uploaded user
 exports.getImagesByUploadedUser = async (req, res) => {
     const userId = req.params.userId;
     try {
-        db.all('select * from images where user_id = ?', [userId], (err, result) => {
-            if(err)
-                return res.status(500).json({ error: 'Error fetching images.' });
-            if (!result) {
-                return res.status(404).json({ error: 'Images not found.' });
-            }
-            res.status(200).json({result}); // Respond with the array of image URLs
-        })
+        // Use queryAsync.all to fetch images
+        const result = await queryAsync.all('SELECT * FROM images WHERE user_id = ?', [userId]);
+        // Check if result is empty
+        if (result.length === 0) {
+            return res.status(404).json({ result });
+        }
+        res.status(200).json({ result }); // Respond with the array of image URLs
     } catch (error) {
         console.error(error); // Log any errors
         res.status(500).json({ error: 'Error fetching images' }); // Respond with an error message
     }
 };
+
 
 //upload image
 exports.uploadImage = async (req, res) => {

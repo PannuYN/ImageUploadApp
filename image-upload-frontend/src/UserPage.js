@@ -77,7 +77,8 @@ const UserPage = () => {
   const handleDelete = async (blobName, imageId) => {
     try {
       await axios.delete(`http://localhost:5000/images/delete/${imageId}/${blobName}`);
-      fetchUserImages();
+      // Remove the deleted image from the images state
+      setImages(prevImages => prevImages.filter(image => image.id !== imageId));
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -98,7 +99,7 @@ const UserPage = () => {
       <button onClick={handleImageUpload}>Upload</button>
       <h2>Uploaded Images:</h2>
       <ul>
-        {images.length > 0 && images.map((image, index) => {
+        {images && images.map((image, index) => {
           const blobName = image.url.split('/').pop(); // Extract blob name from the URL
           return (
             <div key={index}>
