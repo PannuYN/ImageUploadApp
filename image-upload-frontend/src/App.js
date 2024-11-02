@@ -13,7 +13,7 @@ function App() {
         <Route path="/" element={<HomePage />} /> {/* Define the route for the Home Page */}
         <Route path='/users' element={<UserList />} />
         <Route path="/user/:userId" element={<UserPage />} />
-        <Route path='/test' element={<TestPage />} />
+        <Route path='/test/:userId' element={<TestPage />} />
       </Routes>
     </Router>
   );
