@@ -13,7 +13,7 @@ function createContainerClient(containerName) {
 
 // Function to upload image to azure storage acc container and ger the url
 async function uploadAndGetUrl(req, containerName) {
-    const blobName = req.file.originalname; // Get the original name of the uploaded file
+    const blobName = `${Date.now()}-${req.file.originalname}`; // Get the original name of the uploaded file
     const blockBlobClient = createContainerClient(containerName).getBlockBlobClient(blobName); // Create a block blob client for the uploaded file
     await blockBlobClient.upload(req.file.buffer, req.file.size); // Upload the file buffer to Azure Blob Storage
     const imageUrl = blockBlobClient.url; // Get the URL of the uploaded image

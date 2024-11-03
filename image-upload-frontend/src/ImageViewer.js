@@ -20,25 +20,21 @@ function ImageViewer({ open, onClose, children, imageUrl }) {
             TransitionComponent={Transition}
             aria-labelledby="dialog-title"
         >
-            <IconButton
-                aria-label="close"
-                onClick={onClose}
-                sx={(theme) => ({
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    color: theme.palette.grey[800],
-                })}
-            >
-                <CloseIcon />
-            </IconButton>
+            <div style={{ display: 'flex', justifyContent: 'end' }}>
+                <IconButton
+                    aria-label="close"
+                    onClick={onClose}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </div>
+
             <img
                 src={imageUrl}
                 alt="Enlarged view"
                 style={{
-                    width: '100%', // Full width
-                    height: 'auto', // Auto height to maintain aspect ratio
-                    maxHeight: '80vh', // Limit height to 80% of the viewport height
+                    maxWidth: '100%',   // Limit width to 90% of dialog
+                    maxHeight: '60vh', // Limit height to 80% of the viewport height
                     objectFit: 'contain' // Ensure the image fits within the container
                 }}
             />
@@ -50,7 +46,6 @@ function ImageViewer({ open, onClose, children, imageUrl }) {
 ImageViewer.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    title: PropTypes.string,
     children: PropTypes.node,
 };
 
