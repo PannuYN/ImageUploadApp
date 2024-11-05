@@ -11,8 +11,8 @@ import UploadOutlinedIcon from '@mui/icons-material/UploadOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import theme from './theme';
 
-function UserPage() {
-  const { userId } = useParams(); // Get userId from the URL
+function UserPage(props) {
+  const { userId } = props; // Get userId from the URL
   const [user, setUser] = useState(null); //for current user
   const [images, setImages] = useState([]); //for uploaded images
   const [profileUpdateTrigger, setProfileUpdateTrigger] = useState(false); //to refresh every time profile pic is changed
@@ -41,6 +41,7 @@ function UserPage() {
       setImages(data.result);
     } catch (error) {
       console.error('Error fetching user images:', error);
+      setImages([]);
     }
   };
 
@@ -147,15 +148,18 @@ function UserPage() {
             <div style={{ display: 'flex', justifyContent: 'start', gap: 5, marginLeft: 10 }}>
               {/* Profile Image */}
               <div style={{ width: 70, height: 70, overflow: 'hidden', position: 'relative' }}>
-                <img
-                  src={user.profile_pic}
-                  alt="Profile"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%'
-                  }}
-                />
+                {user.profile_pic ?
+                  <img
+                    src={user.profile_pic}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '50%'
+                    }}
+                  />
+                  :
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: 'gray' }}></div>
+                }
 
                 {/* Custom "+" Button in Bottom-Right for profile change */}
                 <input type="file" ref={profileInputRef} onChange={handleProfileImageFileChange}

@@ -70,7 +70,8 @@ exports.downloadImage = async (req, res) => {
 exports.deleteImage = async (req, res) => {
     const blobName = req.params.blobName;
     const imageId = req.params.imageId;
-    const blockBlobClient = createContainerClient(containerName).getBlockBlobClient(blobName);
+    const decodedBlobName = decodeURIComponent(blobName);
+    const blockBlobClient = createContainerClient(containerName).getBlockBlobClient(decodedBlobName);
     try {
         await blockBlobClient.delete(); // Attempt to delete the file
         db.run('delete from images where id = ?', [imageId], (err, result) => {
